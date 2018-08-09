@@ -15,12 +15,17 @@ public class Match {
         this.playerName.put("B",1);
     }
 
-    private boolean checkPoints(int playerId){
-        return true;
+    private boolean checkPoints(int playerId, int minPoints){
+        return (points[playerId] >= minPoints && points[playerId] - points[(playerId + 1) % 2] >= 2);
+    }
+
+    private boolean isTieBreaker(){
+        return Math.min(game_score[0], game_score[1]) >= 6;
     }
 
     private boolean checkGame(int playerId){
-        return (game_score[playerId] >= 6 && game_score[playerId] - game_score[(playerId + 1) % 2] >= 2);
+        return (game_score[playerId] >= 6 && ((game_score[playerId] - game_score[(playerId + 1) % 2] >= 2)
+                || checkPoints(playerId, 6)));
     }
 
     public void updateScore(String point){
@@ -28,16 +33,16 @@ public class Match {
         int playerId=playerName.get(point);
         points[playerId]++;
 
-        if(checkPoints(playerId)){
+        if(checkPoints(playerId, 4) && !isTieBreaker()){
             game_score[playerId]++;
-            //reset point
             points[0] = points[1] = 0;
+        }
 
-            if(checkGame(playerId)){
-                set_score[playerId]++;
-                //reset game
-                game_score[0] = game_score[1] = 0;
-            }
+        if(checkGame(playerId)){
+            set_score[playerId]++;
+            //reset game
+            game_score[0] = game_score[1] = 0;
+            points[0] = points[1] = 0;
         }
 
     }
